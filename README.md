@@ -7,3 +7,14 @@ Super simple webapp to calculate weekdays of a date.
 - Devops:
     - Deploy: Render
     - Docker Registry: Github
+
+## Goal
+- Write JS again after two months
+- Try out JSDoc for typing
+- Try out native node.js http server
+  - Serving api
+  - Serving static files
+  - Routing structures
+- Try out node.js testing suite
+- Turn JS into an error as value language (F exceptions)
+- Maybe some cool animation when showing the answer
