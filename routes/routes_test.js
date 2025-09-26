@@ -44,6 +44,19 @@ test("multiple route registration", function () {
     assert.ok(!err2, "Should not have error: second route");
 });
 
+test("empty route handling", function () {
+    const router = new Router();
+    const path = undefined;
+
+    const [pathFunc, err] = router.route(path);
+    assert.ok(!pathFunc, "Should not have returned a pathFunc");
+    assert.strictEqual(
+        err,
+        ROUTE_NOT_FOUND,
+        "Incorrect error, should've been: " + ROUTE_NOT_FOUND,
+    );
+});
+
 test("route does not exist", function () {
     const router = new Router();
     const path = "/health";

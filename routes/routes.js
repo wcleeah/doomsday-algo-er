@@ -20,10 +20,13 @@ export class Router {
     }
     /**
      * Routes a request to the appropriate handler function
-     * @param {string} path
+     * @param {string | undefined} path
      * @returns {[RouteHandler | undefined, string | undefined]} A tuple containing the route handler function and error message. Returns [handler, undefined] on success or [undefined, error] on failure.
      */
     route(path) {
+        if (!path) {
+            return [undefined, ROUTE_NOT_FOUND];
+        }
         const pathFunc = this.#routesMap[path];
         if (!pathFunc) {
             return [undefined, ROUTE_NOT_FOUND];
