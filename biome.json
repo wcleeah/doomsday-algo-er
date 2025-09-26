@@ -1,0 +1,12 @@
+{
+	"formatter": {
+		"indentWidth": 4
+	},
+	"javascript": {
+		"formatter": {
+			"indentWidth": 4,
+			"indentStyle": "space",
+			"semicolons": "always"
+		}
+	}
+}
