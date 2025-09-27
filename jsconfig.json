@@ -7,7 +7,7 @@
     "target": "ES2022",
     "module": "ES2022"
   },
-  "include": ["src/**/*", "*.js", "**/*.js"],
+  "include": ["*.js", "**/*.js"],
   "exclude": ["node_modules", "dist"]
 }
 

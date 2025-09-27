@@ -1,6 +1,7 @@
 import { createHttpServer } from "./core/server.js";
 
-const server = createHttpServer()
+const server = createHttpServer();
 
-// TOOO: move the port to env
-server.listen(3000);
+server.listen(process.env.PORT, function () {
+    console.log(`Server started on ${process.env.PORT}!`);
+});
