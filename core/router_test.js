@@ -4,8 +4,8 @@ import {
     ROUTE_MAP_FROZEN,
     ROUTE_NOT_FOUND,
     Router,
-} from "./routes.js";
-import assert from "assert";
+} from "./router.js";
+import assert from "node:assert";
 
 test("route registration", function () {
     const router = new Router();

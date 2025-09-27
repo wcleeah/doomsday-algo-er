@@ -2,7 +2,7 @@
  * @typedef {import('node:http').Server} Server
  */
 import { createServer } from "node:http";
-import { ROUTE_NOT_FOUND, Router } from "../routes/routes.js";
+import { ROUTE_NOT_FOUND, Router } from "./router.js";
 
 /**
  * @param {Server} server
@@ -17,9 +17,13 @@ function registerListener(server) {
  * @param {Router} router
  */
 function registerRoute(router) {
-    router.register("/health", function (_req, res) {
+    const err = router.register("/health", function (_req, res) {
         res.write("ok");
     });
+    if (!err) {
+        console.log("Route registration failed for /health, err:", err);
+    }
+
     router.lock();
 }
 
