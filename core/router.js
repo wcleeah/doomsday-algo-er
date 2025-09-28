@@ -19,7 +19,7 @@ export class Router {
     /**
      * Routes a request to the appropriate handler function
      * @param {string | undefined} path
-     * @returns {[RouteHandler | undefined, string | undefined]} A tuple containing the route handler function and error message. Returns [handler, undefined] on success or [undefined, error] on failure.
+     * @returns {import("@types").WithError<RouteHandler>} 
      */
     route(path) {
         if (!path) {
