@@ -10,12 +10,13 @@ const asyncLocalStorage = new AsyncLocalStorage();
  */
 function log(level, message, meta) {
     const requestId = asyncLocalStorage.getStore() ?? randomUUID();
+    const lf = level === "info" ? console.log : console.error;
 
     if (process.env.LOG_FORMAT === "PLAIN") {
-        console.log(`[${level}]`, message, requestId, meta);
+        lf(message, requestId, meta);
         return;
     }
-    console.log(
+    lf(
         JSON.stringify({
             message,
             level,

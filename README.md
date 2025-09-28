@@ -10,6 +10,7 @@ Super simple webapp to calculate weekdays of a date.
 
 ## Goal
 - Write JS again after two months
+  - hopefully with no package
 - Try out JSDoc for typing
 - Try out native node.js http server
   - Serving api
