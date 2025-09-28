@@ -1,8 +1,5 @@
 {
 	"name": "doomsday-algo-er",
-	"version": "1.0.0",
-	"description": "Super simple webapp to calculate weekdays of a date.",
-	"homepage": "https://github.com/wcleeah/doomsday-algo-er#readme",
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
