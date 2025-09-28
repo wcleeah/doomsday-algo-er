@@ -1,6 +1,4 @@
-/**
- * @typedef {function(import('http').IncomingMessage, import('http').ServerResponse): void} RouteHandler
- */
+/** @typedef {import("@types").RouteHandler} RouteHandler */
 
 /** @type {string} */
 export const ROUTE_NOT_FOUND = "NOT_FOUND";

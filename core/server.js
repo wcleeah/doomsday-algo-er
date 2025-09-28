@@ -3,6 +3,7 @@
  */
 import { createServer } from "node:http";
 import { ROUTE_NOT_FOUND, Router } from "./router.js";
+import { bindRoute, info } from "./logger.js";
 
 /**
  * @param {Server} server
@@ -35,21 +36,31 @@ export function createHttpServer() {
     registerRoute(router);
 
     const server = createServer((req, res) => {
-        const [f, err] = router.route(req.url);
-        if (err === ROUTE_NOT_FOUND) {
-            res.statusCode = 404;
-            res.write("not found");
-            res.end();
-            return;
-        }
-        if (!f) {
-            res.statusCode = 500;
-            res.write("internal server error");
-            res.end();
-            return;
-        }
+        const [f, err] = router.route(req.url?.split("?")[0]);
 
-        f(req, res);
+        /** @type {import("@types").RouteHandler} next */
+        const next = function (req, res) {
+            info(`${req.method} ${req.url}`);
+            if (err === ROUTE_NOT_FOUND) {
+                res.statusCode = 404;
+                info(`${req.method} ${req.url} 404`);
+                res.write("not found");
+                res.end();
+                return;
+            }
+            if (!f) {
+                res.statusCode = 500;
+                res.write("internal server error");
+                info("Random error or something is wrong", { err });
+                info(`${req.method} ${req.url} 500`);
+                res.end();
+                return;
+            }
+
+            f(req, res);
+            info(`${req.method} ${req.url} ${req.statusCode}`);
+        };
+        bindRoute(req, res, next);
         res.end();
     });
 
