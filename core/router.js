@@ -1,4 +1,8 @@
-/** @typedef {import("@types").RouteHandler} RouteHandler */
+/**
+ * @typedef {import("@types").AsyncRouteHandler} AsyncRouteHandler
+ * @typedef {import("@types").SyncRouteHandler} SyncRouteHandler
+ * @typedef {AsyncRouteHandler | SyncRouteHandler} RouteHandler
+ */
 
 /** @type {string} */
 export const ROUTE_NOT_FOUND = "NOT_FOUND";
@@ -19,7 +23,7 @@ export class Router {
     /**
      * Routes a request to the appropriate handler function
      * @param {string | undefined} path
-     * @returns {import("@types").WithError<RouteHandler>} 
+     * @returns {import("@types").WithError<RouteHandler>}
      */
     route(path) {
         if (!path) {

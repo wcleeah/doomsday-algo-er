@@ -13,7 +13,7 @@ function log(level, message, meta) {
     const lf = level === "info" ? console.log : console.error;
 
     if (process.env.LOG_FORMAT === "PLAIN") {
-        lf(message, requestId, meta);
+        lf("RequestId:", requestId, "Message:", message, meta);
         return;
     }
     lf(

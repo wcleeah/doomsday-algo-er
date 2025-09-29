@@ -1,6 +1,7 @@
 /**
  * @typedef {import('node:http').Server} Server
- * @typedef {import("@types").RouteHandler} RouteHandler
+ * @typedef {import("@types").AsyncRouteHandler} AsyncRouteHandler
+ * @typedef {import("@types").Routes} Routes  
  */
 import { createServer } from "node:http";
 import { ROUTE_NOT_FOUND, Router } from "./router.js";
@@ -22,7 +23,7 @@ function registerListener(server) {
  * @param {Router} router
  */
 function registerRoute(router) {
-    /** @type {[string, RouteHandler][]} */
+    /** @type {Routes} */
     const routes = [
         [
             "/health",
@@ -45,8 +46,8 @@ function registerRoute(router) {
     router.lock();
 }
 
-/** @type{RouteHandler} next -> shoutout to expressjs */
-function next(req, res) {
+/** @type{AsyncRouteHandler} next -> shoutout to expressjs */
+async function next(req, res) {
     const [f, err] = router.route(req.url?.split("?")[0]);
     info(`${req.method} ${req.url}`, { headers: req.headers });
     if (err === ROUTE_NOT_FOUND) {
@@ -65,12 +66,17 @@ function next(req, res) {
         return;
     }
 
-    f(req, res);
+    // Interesting
+    // f can return a promise, or not
+    // Wrapping Promise.resolve will handle both case
+    await Promise.resolve(f(req, res));
+    const msg = `${req.method} ${req.url} ${res.statusCode}`;
     if (res.statusCode >= 400) {
-        error(`${req.method} ${req.url} ${req.statusCode}`);
+        error(msg);
         return;
     }
-    info(`${req.method} ${req.url} ${req.statusCode}`);
+    info(msg);
+    res.end();
 }
 
 /**
@@ -79,9 +85,15 @@ function next(req, res) {
 export function createHttpServer() {
     registerRoute(router);
 
+    // OK, LOOK
+    // I have done some research, especially on:
+    // 1. Express handlings on middlewares, error propagation etc
+    // 2. Handleing Sync and Async functions mixture
+    // But i dun want create a full fledge ecpress clone
+    // I just want to finish the implementation atm
+    // So, this will have to work for now
     const server = createServer((req, res) => {
         bindRoute(req, res, next);
-        res.end();
     });
 
     registerListener(server);
