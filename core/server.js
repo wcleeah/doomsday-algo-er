@@ -1,12 +1,12 @@
 /**
  * @typedef {import('node:http').Server} Server
  * @typedef {import("@types").AsyncRouteHandler} AsyncRouteHandler
- * @typedef {import("@types").Routes} Routes  
+ * @typedef {import("@types").Routes} Routes
  */
 import { createServer } from "node:http";
-import { ROUTE_NOT_FOUND, Router } from "./router.js";
-import { bindRoute, error, info } from "./logger.js";
 import { routes as doomsdayRoutes } from "../route/doomsday.js";
+import { bindRoute, error, info } from "./logger.js";
+import { ROUTE_NOT_FOUND, Router } from "./router.js";
 
 const router = new Router();
 
@@ -14,7 +14,7 @@ const router = new Router();
  * @param {Server} server
  */
 function registerListener(server) {
-    server.on("close", function () {
+    server.on("close", () => {
         console.log("Server closed, bye");
     });
 }
@@ -27,7 +27,7 @@ function registerRoute(router) {
     const routes = [
         [
             "/health",
-            function (_req, res) {
+            (_req, res) => {
                 res.write("ok");
             },
         ],
@@ -73,9 +73,9 @@ async function next(req, res) {
     const msg = `${req.method} ${req.url} ${res.statusCode}`;
     if (res.statusCode >= 400) {
         error(msg);
-        return;
+    } else {
+        info(msg);
     }
-    info(msg);
     res.end();
 }
 
@@ -89,6 +89,7 @@ export function createHttpServer() {
     // I have done some research, especially on:
     // 1. Express handlings on middlewares, error propagation etc
     // 2. Handleing Sync and Async functions mixture
+    // This is definitely not the most ideal way to do things...
     // But i dun want create a full fledge ecpress clone
     // I just want to finish the implementation atm
     // So, this will have to work for now

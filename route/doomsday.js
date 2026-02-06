@@ -5,7 +5,7 @@
  */
 
 import { findWeekday } from "../lib/doomsday/doomsday.js";
-import { findWeekday as prmoptPerplexity } from "../lib/doomsday/perplexity.js";
+import { prmoptPerplexity } from "../lib/doomsday/perplexity.js";
 import { getUrlObject } from "../lib/request/url.js";
 import { errorResponse, okResponse } from "../lib/response/response.js";
 
@@ -86,7 +86,7 @@ async function findWithPerplexity(req, res) {
 
     if (!ret || wdErr) {
         res.statusCode = 422;
-        res.write(errorResponse(err ?? "Something went wrong"));
+        res.write(errorResponse(wdErr ?? "Something went wrong"));
         return;
     }
 
