@@ -1,41 +1,29 @@
 /**
  * @typedef {import("@types").AsyncRouteHandler} AsyncRouteHandler
  * @typedef {import("@types").SyncRouteHandler} SyncRouteHandler
- * @typedef {import("@types").Routes} Routes  
+ * @typedef {import("@types").Routes} Routes
  */
 
+import fs from "node:fs/promises";
+import { pipeline } from "node:stream/promises";
 import { findWeekday } from "../lib/doomsday/doomsday.js";
-import { prmoptPerplexity } from "../lib/doomsday/perplexity.js";
+import { promptOpenRouter } from "../lib/doomsday/openrouter.js";
 import { getUrlObject } from "../lib/request/url.js";
 import { errorResponse, okResponse } from "../lib/response/response.js";
+import { parseQueryParam } from "./parseQueryParam.js";
 
-/**
- * @param {URLSearchParams} search
- * @return {import("@types").WithError<{year: number, month: number, day: number}>}
- */
-function parseQueryParam(search) {
-    const year = search.get("year");
-    const month = search.get("month");
-    const day = search.get("day");
-    if (!year || !month || !day) {
-        return [
-            undefined,
-            "The following query param is required: year, month and day",
-        ];
+/** @type {AsyncRouteHandler} */
+async function getRoot(_req, res) {
+    const filePath = "public/index.html";
+    
+    try {
+      const data = await fs.readFile(filePath);
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(data);
+    } catch {
+      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Not found");
     }
-
-    const yearInt = parseInt(year);
-    const monthInt = parseInt(month);
-    const dayInt = parseInt(day);
-
-    if (isNaN(yearInt) || isNaN(monthInt) || isNaN(dayInt)) {
-        return [
-            undefined,
-            "The following query param must be integer: year, month and day",
-        ];
-    }
-
-    return [{ year: yearInt, month: monthInt, day: dayInt }, undefined];
 }
 
 /** @type {SyncRouteHandler} */
@@ -67,7 +55,7 @@ function findWithDoomsday(req, res) {
 }
 
 /** @type {AsyncRouteHandler} */
-async function findWithPerplexity(req, res) {
+async function findWithOpenRouter(req, res) {
     const [url, urlErr] = getUrlObject(req);
     if (urlErr || !url) {
         res.statusCode = 500;
@@ -82,7 +70,11 @@ async function findWithPerplexity(req, res) {
         return;
     }
 
-    const [ret, wdErr] = await prmoptPerplexity(params.year, params.month, params.day);
+    const [ret, wdErr] = await promptOpenRouter(
+        params.year,
+        params.month,
+        params.day,
+    );
 
     if (!ret || wdErr) {
         res.statusCode = 422;
@@ -90,12 +82,18 @@ async function findWithPerplexity(req, res) {
         return;
     }
 
-    res.write(okResponse("Success", ret));
-    res.statusCode = 200;
+    res.writeHead(200, {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+    });
+
+    await pipeline(ret, res);
 }
 
 /** @type {Routes} */
 export const routes = [
     ["/dooooooooooooooooooooooooooooom", findWithDoomsday],
-    ["/perplexity", findWithPerplexity],
+    ["/openrouter", findWithOpenRouter],
+    ["/", getRoot],
 ];

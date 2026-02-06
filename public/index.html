@@ -1,14 +1,95 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>What's the weekday?</title>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Find the weekday...</h1>
-        </div>
-    </body>
-</html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What's the weekday?</title>
+    <style>
+      * {
+        font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+      }
 
+      .page-center-original {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .page-center-clicked {
+        position: absolute;
+        top: 5%;
+        transition: top 300ms ease-in-out;
+      }
+
+      .container {
+        display: flex;
+        place-items: center;
+        gap: 8px;
+        flex-direction: column;
+      }
+
+      .input-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .answer-container {
+        display: grid;
+        grid-template-columns: repeat(2, 2fr);
+        place-items: center;
+        width: 100vw;
+        padding: 12px;
+        gap: 20px;
+        flex: 1;
+      }
+
+      .answer-ai {
+          border: 4px rounded green;
+      }
+
+      .answer-algo {
+          border: 4px rounded red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-center-original">
+      <div class="container">
+        <h1>Find the weekday...</h1>
+        <div class="input-container">
+          <input id="year" type="text" placeholder="year" />
+          <input id="month" type="text" placeholder="month" />
+          <input id="day" type="text" placeholder="day" />
+        </div>
+        <button id="submit-button">Submit</button>
+        <div class="answer-container hidden">
+          <div class="answer-ai">123</div>
+          <div class="answer-algo">456</div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    document
+      .querySelector("button#submit-button")
+      .addEventListener("click", () => {
+        const divPC = document.querySelector("div.page-center-original");
+        const answerCon = document.querySelector("div.answer-container");
+        const button = document.querySelector("button#submit-button");
+
+        divPC.className = "page-center-original page-center-clicked";
+        button.className = "submit-button hidden";
+        document.querySelectorAll("input").forEach((node) => {
+          node.disabled = true;
+        });
+
+        answerCon.className = "answer-container";
+      });
+  </script>
+</html>
