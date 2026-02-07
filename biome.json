@@ -8,5 +8,13 @@
 			"indentStyle": "space",
 			"semicolons": "always"
 		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"complexity": {
+				"useArrowFunction": "off"
+			}
+		}
 	}
 }

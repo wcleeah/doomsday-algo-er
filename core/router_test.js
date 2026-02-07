@@ -1,3 +1,4 @@
+import assert from "node:assert";
 import test from "node:test";
 import {
     ROUTE_EXIST,
@@ -5,7 +6,6 @@ import {
     ROUTE_NOT_FOUND,
     Router,
 } from "./router.js";
-import assert from "node:assert";
 
 test("route registration", function () {
     const router = new Router();
