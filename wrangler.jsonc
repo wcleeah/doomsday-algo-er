@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "doomsday-algo-ar",
+  "name": "doomsday-algo-er",
   "main": "./index.js",
     "assets": {
     "directory": "./public",
