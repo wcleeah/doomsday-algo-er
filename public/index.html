@@ -5,8 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>What's the weekday?</title>
     <style>
+      :root {
+        --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+        --color-primary: #333;
+        --color-accent: #4a9eff;
+        --color-border: #d0d0d0;
+        --color-border-hover: #a0a0a0;
+        --color-border-focus: #4a9eff;
+        --color-bg: #f8f9fa;
+        --color-text: #333;
+        --color-text-muted: #666;
+        --color-text-light: #999;
+        --color-placeholder: #bbb;
+        --color-disabled: #ccc;
+        --transition-ease: 200ms ease;
+        --transition-animation: 300ms ease-in-out;
+        --spacing-gap: 16px;
+        --spacing-gap-mobile: 12px;
+      }
+
       * {
-        font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+        font-family: var(--font-mono);
         margin: 0;
         padding: 0;
         box-sizing: border-box;
@@ -42,7 +61,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 16px;
+        gap: var(--spacing-gap);
       }
 
       .input-container {
@@ -67,7 +86,7 @@
         align-items: flex-start;
         justify-content: flex-start;
         border-right: 1px solid #e0e0e0;
-        background-color: #f8f9fa;
+        background-color: var(--color-bg);
         padding: 40px;
         overflow-y: auto;
         white-space: pre-wrap;
@@ -78,7 +97,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #f8f9fa;
+        background-color: var(--color-bg);
         padding: 40px;
         overflow-y: auto;
         white-space: pre-wrap;
@@ -94,63 +113,63 @@
       .algo-weekday {
         font-size: 48px;
         font-weight: bold;
-        color: #333;
+        color: var(--color-text);
       }
 
       .algo-details {
         font-size: 14px;
-        color: #666;
+        color: var(--color-text-muted);
       }
 
       input {
         border: none;
-        border-bottom: 1px solid #d0d0d0;
+        border-bottom: 1px solid var(--color-border);
         background-color: transparent;
         border-radius: 0;
         padding: 8px 4px;
         font-size: 14px;
-        color: #333;
+        color: var(--color-text);
         outline: none;
-        transition: border-color 200ms ease;
+        transition: border-color var(--transition-ease);
         width: 80px;
         text-align: center;
       }
 
       input::placeholder {
-        color: #bbb;
+        color: var(--color-placeholder);
       }
 
       input:focus {
-        border-bottom-color: #4a9eff;
+        border-bottom-color: var(--color-border-focus);
       }
 
       input:hover:not(:focus) {
-        border-bottom-color: #a0a0a0;
+        border-bottom-color: var(--color-border-hover);
       }
 
       input:disabled {
         border-bottom-color: #e0e0e0;
-        color: #999;
+        color: var(--color-text-light);
         cursor: not-allowed;
       }
 
       button {
         border: none;
         background-color: transparent;
-        color: #333;
+        color: var(--color-text);
         padding: 10px 24px;
         font-size: 14px;
         font-weight: 500;
         border-radius: 6px;
         cursor: pointer;
         outline: none;
-        transition: all 200ms ease;
+        transition: all var(--transition-ease);
         margin-top: 8px;
       }
 
       button:hover {
-        border: 1px solid #333;
-        background-color: #333;
+        border: 1px solid var(--color-text);
+        background-color: var(--color-text);
         color: #fff;
       }
 
@@ -159,7 +178,7 @@
       }
 
       button:disabled {
-        color: #ccc;
+        color: var(--color-disabled);
         cursor: not-allowed;
         background-color: transparent;
       }
@@ -172,6 +191,10 @@
         will-change: transform;
       }
 
+      h1 {
+        text-align: center;
+      }
+
       @media (max-width: 600px) {
         h1 {
           font-size: 24px;
@@ -181,13 +204,9 @@
           align-items: stretch;
         }
 
-        h1 {
-          text-align: center;
-        }
-
         .input-container {
           flex-direction: column;
-          gap: 12px;
+          gap: var(--spacing-gap-mobile);
         }
 
         input {
@@ -237,116 +256,159 @@
     </div>
   </body>
   <script>
+    const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    const DOM = {
+      formWrapper: null,
+      answerContainer: null,
+      submitButton: null,
+      resetButton: null,
+      answerAi: null,
+      answerAlgo: null,
+      inputs: null,
+      init() {
+        this.formWrapper = document.getElementById('formWrapper');
+        this.answerContainer = document.getElementById('answerContainer');
+        this.submitButton = document.getElementById('submit-button');
+        this.resetButton = document.getElementById('reset-button');
+        this.answerAi = document.querySelector('.answer-ai');
+        this.answerAlgo = document.querySelector('.answer-algo');
+        this.inputs = document.querySelectorAll('input');
+      }
+    };
+
     function flipAnimation(element, finalClass) {
-      // First: Get the initial position
       const first = element.getBoundingClientRect();
-
-      // Apply the final state class
       element.classList.add(finalClass);
-
-      // Last: Get the final position
       const last = element.getBoundingClientRect();
-
-      // Invert: Calculate the difference
       const deltaY = first.top - last.top;
       const deltaX = first.left - last.left;
 
-      // Apply transform to put element back where it was visually
       element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
       element.classList.add('animating');
-
-      // Force a reflow
       element.offsetHeight;
 
-      // Play: Animate to final position
-      element.style.transition = 'transform 300ms ease-in-out';
+      element.style.transition = 'transform var(--transition-animation)';
       element.style.transform = '';
 
-      // Cleanup after animation
       element.addEventListener('transitionend', () => {
         element.style.transition = '';
         element.classList.remove('animating');
       }, { once: true });
     }
 
-    document.getElementById('submit-button').addEventListener('click', async () => {
-      const formWrapper = document.getElementById('formWrapper');
-      const answerContainer = document.getElementById('answerContainer');
-      const button = document.getElementById('submit-button');
-      const answerAi = document.querySelector('.answer-ai');
-      const answerAlgo = document.querySelector('.answer-algo');
+    function validateInput(value, name) {
+      const num = parseInt(value, 10);
+      if (Number.isNaN(num) || num < 1) {
+        throw new Error(`Invalid ${name}: must be a positive number`);
+      }
+      return num;
+    }
 
-      answerContainer.classList.remove('hidden');
-      flipAnimation(formWrapper, 'at-top');
-      button.classList.add('hidden');
-
-      document.querySelectorAll('input').forEach((input) => {
-        input.disabled = true;
+    function setInputsDisabled(disabled) {
+      DOM.inputs.forEach((input) => {
+        input.disabled = disabled;
       });
+    }
 
-      const year = document.getElementById('year').value;
-      const month = document.getElementById('month').value;
-      const day = document.getElementById('day').value;
+    function toggleButtons(submitVisible, resetVisible) {
+      DOM.submitButton.classList.toggle('hidden', !submitVisible);
+      DOM.resetButton.classList.toggle('hidden', !resetVisible);
+    }
+
+    async function fetchAiResponse(query) {
+      const response = await fetch(`/openrouter${query}`);
+      if (!response.ok) throw new Error('OpenRouter request failed');
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No stream available');
+
+      const decoder = new TextDecoder();
+      DOM.answerAi.textContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = decoder.decode(value);
+        const lines = text.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+            try {
+              const json = JSON.parse(data);
+              const content = json.choices?.[0]?.delta?.content;
+              if (content) DOM.answerAi.textContent += content;
+            } catch {}
+          }
+        }
+      }
+    }
+
+    async function fetchAlgoResponse(query) {
+      const response = await fetch(`/dooooooooooooooooooooooooooooom${query}`);
+      if (!response.ok) throw new Error('Doomsday request failed');
+
+      const data = await response.json();
+      const { weekday, doomsdayWeekday } = data.data;
+
+      DOM.answerAlgo.innerHTML = `
+        <div class="algo-result">
+          <div class="algo-weekday">${WEEKDAYS[weekday]}</div>
+          <div class="algo-details">Doomsday: ${WEEKDAYS[doomsdayWeekday]}</div>
+        </div>
+      `;
+    }
+
+    async function handleSubmit() {
+      DOM.answerContainer.classList.remove('hidden');
+      flipAnimation(DOM.formWrapper, 'at-top');
+      toggleButtons(false, true);
+      setInputsDisabled(true);
+
+      const year = DOM.inputs[0].value;
+      const month = DOM.inputs[1].value;
+      const day = DOM.inputs[2].value;
+
+      validateInput(year, 'year');
+      validateInput(month, 'month');
+      validateInput(day, 'day');
+
       const query = `?year=${year}&month=${month}&day=${day}`;
 
-      document.getElementById('reset-button').classList.remove('hidden');
+      Promise.allSettled([
+        fetchAiResponse(query),
+        fetchAlgoResponse(query)
+      ]).then(([aiResult, algoResult]) => {
+        if (aiResult.status === 'rejected') {
+          DOM.answerAi.textContent = `Error: ${aiResult.reason.message}`;
+        }
+        if (algoResult.status === 'rejected') {
+          DOM.answerAlgo.textContent = `Error: ${algoResult.reason.message}`;
+        }
+      });
+    }
 
-      fetch(`/openrouter${query}`)
-        .then(async (res) => {
-          if (!res.ok) throw new Error('OpenRouter request failed');
-          const reader = res.body?.getReader();
-          if (!reader) throw new Error('No stream available');
-          const decoder = new TextDecoder();
-          answerAi.textContent = '';
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const text = decoder.decode(value);
-            const lines = text.split('\n');
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const data = line.slice(6);
-                if (data === '[DONE]') continue;
-                try {
-                  const json = JSON.parse(data);
-                  const content = json.choices?.[0]?.delta?.content;
-                  if (content) answerAi.textContent += content;
-                } catch {}
-              }
-            }
-          }
-        })
-        .catch((err) => {
-          answerAi.textContent = `Error: ${err.message}`;
-        });
-
-      fetch(`/dooooooooooooooooooooooooooooom${query}`)
-        .then(async (res) => {
-          if (!res.ok) throw new Error('Doomsday request failed');
-          const data = await res.json();
-          const { weekday, doomsdayWeekday } = data.data;
-          const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-          answerAlgo.innerHTML = `
-            <div class="algo-result">
-              <div class="algo-weekday">${weekdays[weekday]}</div>
-              <div class="algo-details">Doomsday: ${weekdays[doomsdayWeekday]}</div>
-            </div>
-          `;
-        })
-        .catch((err) => {
-          answerAlgo.textContent = `Error: ${err.message}`;
-        });
-    });
-
-    document.getElementById('reset-button').addEventListener('click', () => {
-      document.querySelectorAll('input').forEach((input) => {
-        input.disabled = false;
+    function handleReset() {
+      setInputsDisabled(false);
+      DOM.inputs.forEach((input) => {
         input.value = '';
       });
-      document.getElementById('submit-button').classList.remove('hidden');
-      document.getElementById('reset-button').classList.add('hidden');
-      document.getElementById('answerContainer').classList.add('hidden');
-      document.getElementById('formWrapper').classList.remove('at-top');
+      toggleButtons(true, false);
+      DOM.answerContainer.classList.add('hidden');
+      DOM.formWrapper.classList.remove('at-top');
+    }
+
+    DOM.init();
+
+    DOM.submitButton.addEventListener('click', handleSubmit);
+    DOM.resetButton.addEventListener('click', handleReset);
+
+    DOM.inputs.forEach((input) => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSubmit();
+      });
     });
   </script>
 </html>
