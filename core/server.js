@@ -21,13 +21,14 @@ function registerListener(server) {
 
 /**
  * @param {Router} router
+ * @param {any} env
  */
-function registerRoute(router) {
+function registerRoute(router, env) {
     /** @type {Routes} */
     const routes = [
         [
             "/health",
-            (_req, res) => {
+            (_req, res, _env) => {
                 res.write("ok");
             },
         ],
@@ -80,10 +81,11 @@ async function next(req, res) {
 }
 
 /**
+ * @param {any} env
  * @returns {Server} Server object
  */
-export function createHttpServer() {
-    registerRoute(router);
+export function createHttpServer(env) {
+    registerRoute(router, env);
 
     // OK, LOOK
     // I have done some research, especially on:

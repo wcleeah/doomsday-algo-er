@@ -1,7 +1,17 @@
+import { httpServerHandler } from "cloudflare:node";
 import { createHttpServer } from "./core/server.js";
 
-const server = createHttpServer();
+let handler;
 
-server.listen(process.env.PORT, function () {
-    console.log(`Server started on ${process.env.PORT}!`);
-});
+export default {
+    fetch(request, env, ctx) {
+        // Create (once) a handler that can see env/ctx
+        if (!handler) {
+            const server = createHttpServer(env);
+            server.listen(8080);
+            handler = httpServerHandler(server);
+        }
+
+        return handler.fetch(request, env, ctx);
+    },
+};

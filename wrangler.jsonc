@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "doomsday-algo-ar",
+  "main": "./index.js",
+    "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "compatibility_date": "2026-02-06",
+  "compatibility_flags": ["nodejs_compat"]
+}

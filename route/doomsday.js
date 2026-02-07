@@ -4,23 +4,22 @@
  * @typedef {import("@types").Routes} Routes
  */
 
-import fs from "node:fs/promises";
 import { pipeline } from "node:stream/promises";
+import { RateLimiter } from "../core/rate_limiter.js";
 import { findWeekday } from "../lib/doomsday/doomsday.js";
 import { promptOpenRouter } from "../lib/doomsday/openrouter.js";
 import { getUrlObject } from "../lib/request/url.js";
 import { errorResponse, okResponse } from "../lib/response/response.js";
 import { parseQueryParam } from "./parseQueryParam.js";
-import { RateLimiter } from "../core/rate_limiter.js";
 
 /** @type {AsyncRouteHandler} */
-async function getRoot(_req, res) {
-    const filePath = "public/index.html";
+async function getRoot(_req, res, env) {
+    const filePath = "index.html";
 
     try {
-        const data = await fs.readFile(filePath);
+        const data = await env.ASSETS.fetch(filePath);
         res.writeHead(200, { "Content-Type": "text/html" });
-        res.end(data);
+        res.end(await data.arrayBuffer());
     } catch {
         res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
         res.end("Not found");

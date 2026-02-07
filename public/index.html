@@ -31,7 +31,8 @@
         box-sizing: border-box;
       }
 
-      html, body {
+      html,
+      body {
         height: 100%;
         width: 100%;
       }
@@ -256,7 +257,15 @@
     </div>
   </body>
   <script>
-    const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const WEEKDAYS = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
 
     const DOM = {
       formWrapper: null,
@@ -267,14 +276,14 @@
       answerAlgo: null,
       inputs: null,
       init() {
-        this.formWrapper = document.getElementById('formWrapper');
-        this.answerContainer = document.getElementById('answerContainer');
-        this.submitButton = document.getElementById('submit-button');
-        this.resetButton = document.getElementById('reset-button');
-        this.answerAi = document.querySelector('.answer-ai');
-        this.answerAlgo = document.querySelector('.answer-algo');
-        this.inputs = document.querySelectorAll('input');
-      }
+        this.formWrapper = document.getElementById("formWrapper");
+        this.answerContainer = document.getElementById("answerContainer");
+        this.submitButton = document.getElementById("submit-button");
+        this.resetButton = document.getElementById("reset-button");
+        this.answerAi = document.querySelector(".answer-ai");
+        this.answerAlgo = document.querySelector(".answer-algo");
+        this.inputs = document.querySelectorAll("input");
+      },
     };
 
     function flipAnimation(element, finalClass) {
@@ -285,16 +294,20 @@
       const deltaX = first.left - last.left;
 
       element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-      element.classList.add('animating');
+      element.classList.add("animating");
       element.offsetHeight;
 
-      element.style.transition = 'transform var(--transition-animation)';
-      element.style.transform = '';
+      element.style.transition = "transform var(--transition-animation)";
+      element.style.transform = "";
 
-      element.addEventListener('transitionend', () => {
-        element.style.transition = '';
-        element.classList.remove('animating');
-      }, { once: true });
+      element.addEventListener(
+        "transitionend",
+        () => {
+          element.style.transition = "";
+          element.classList.remove("animating");
+        },
+        { once: true },
+      );
     }
 
     function validateInput(value, name) {
@@ -312,43 +325,37 @@
     }
 
     function toggleButtons(submitVisible, resetVisible) {
-      DOM.submitButton.classList.toggle('hidden', !submitVisible);
-      DOM.resetButton.classList.toggle('hidden', !resetVisible);
+      DOM.submitButton.classList.toggle("hidden", !submitVisible);
+      DOM.resetButton.classList.toggle("hidden", !resetVisible);
     }
 
-    async function fetchAiResponse(query) {
-      const response = await fetch(`/openrouter${query}`);
-      if (!response.ok) throw new Error('OpenRouter request failed');
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error('No stream available');
-
-      const decoder = new TextDecoder();
-      DOM.answerAi.textContent = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const text = decoder.decode(value);
-        const lines = text.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') continue;
-            try {
-              const json = JSON.parse(data);
-              const content = json.choices?.[0]?.delta?.content;
-              if (content) DOM.answerAi.textContent += content;
-            } catch {}
+    function fetchAiResponse(query) {
+      return new Promise((resolve, reject) => {
+        const eventSource = new EventSource(`/openrouter${query}`);
+        
+        eventSource.onmessage = (e) => {
+          if (e.data === "[DONE]") {
+            eventSource.close();
+            resolve();
+            return;
           }
-        }
-      }
+          try {
+            const json = JSON.parse(e.data);
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) DOM.answerAi.textContent += content;
+          } catch {}
+        };
+
+        eventSource.onerror = () => {
+          eventSource.close();
+          reject(new Error("Connection failed"));
+        };
+      });
     }
 
     async function fetchAlgoResponse(query) {
       const response = await fetch(`/dooooooooooooooooooooooooooooom${query}`);
-      if (!response.ok) throw new Error('Doomsday request failed');
+      if (!response.ok) throw new Error("Doomsday request failed");
 
       const data = await response.json();
       const { weekday, doomsdayWeekday } = data.data;
@@ -362,8 +369,8 @@
     }
 
     async function handleSubmit() {
-      DOM.answerContainer.classList.remove('hidden');
-      flipAnimation(DOM.formWrapper, 'at-top');
+      DOM.answerContainer.classList.remove("hidden");
+      flipAnimation(DOM.formWrapper, "at-top");
       toggleButtons(false, true);
       setInputsDisabled(true);
 
@@ -371,20 +378,20 @@
       const month = DOM.inputs[1].value;
       const day = DOM.inputs[2].value;
 
-      validateInput(year, 'year');
-      validateInput(month, 'month');
-      validateInput(day, 'day');
+      validateInput(year, "year");
+      validateInput(month, "month");
+      validateInput(day, "day");
 
       const query = `?year=${year}&month=${month}&day=${day}`;
 
       Promise.allSettled([
         fetchAiResponse(query),
-        fetchAlgoResponse(query)
+        fetchAlgoResponse(query),
       ]).then(([aiResult, algoResult]) => {
-        if (aiResult.status === 'rejected') {
+        if (aiResult.status === "rejected") {
           DOM.answerAi.textContent = `Error: ${aiResult.reason.message}`;
         }
-        if (algoResult.status === 'rejected') {
+        if (algoResult.status === "rejected") {
           DOM.answerAlgo.textContent = `Error: ${algoResult.reason.message}`;
         }
       });
@@ -393,21 +400,21 @@
     function handleReset() {
       setInputsDisabled(false);
       DOM.inputs.forEach((input) => {
-        input.value = '';
+        input.value = "";
       });
       toggleButtons(true, false);
-      DOM.answerContainer.classList.add('hidden');
-      DOM.formWrapper.classList.remove('at-top');
+      DOM.answerContainer.classList.add("hidden");
+      DOM.formWrapper.classList.remove("at-top");
     }
 
     DOM.init();
 
-    DOM.submitButton.addEventListener('click', handleSubmit);
-    DOM.resetButton.addEventListener('click', handleReset);
+    DOM.submitButton.addEventListener("click", handleSubmit);
+    DOM.resetButton.addEventListener("click", handleReset);
 
     DOM.inputs.forEach((input) => {
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSubmit();
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") handleSubmit();
       });
     });
   </script>
