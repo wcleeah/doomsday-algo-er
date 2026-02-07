@@ -11,18 +11,19 @@ import { promptOpenRouter } from "../lib/doomsday/openrouter.js";
 import { getUrlObject } from "../lib/request/url.js";
 import { errorResponse, okResponse } from "../lib/response/response.js";
 import { parseQueryParam } from "./parseQueryParam.js";
+import { RateLimiter } from "../core/rate_limiter.js";
 
 /** @type {AsyncRouteHandler} */
 async function getRoot(_req, res) {
     const filePath = "public/index.html";
-    
+
     try {
-      const data = await fs.readFile(filePath);
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(data);
+        const data = await fs.readFile(filePath);
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(data);
     } catch {
-      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end("Not found");
+        res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end("Not found");
     }
 }
 
@@ -54,8 +55,16 @@ function findWithDoomsday(req, res) {
     res.statusCode = 200;
 }
 
+const rl = new RateLimiter(1n);
+rl.addBucket("openrouter");
 /** @type {AsyncRouteHandler} */
 async function findWithOpenRouter(req, res) {
+    const [ok, tokenErr] = rl.tryGrabToken("openrouter");
+    if (!ok) {
+        res.statusCode = 429;
+        res.write(errorResponse(tokenErr ?? "Something went wrong"));
+        return;
+    }
     const [url, urlErr] = getUrlObject(req);
     if (urlErr || !url) {
         res.statusCode = 500;
