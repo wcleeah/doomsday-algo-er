@@ -332,12 +332,17 @@
     function fetchAiResponse(query) {
       return new Promise((resolve, reject) => {
         const eventSource = new EventSource(`/openrouter${query}`);
+        let firstMessage = true;
         
         eventSource.onmessage = (e) => {
           if (e.data === "[DONE]") {
             eventSource.close();
             resolve();
             return;
+          }
+          if (firstMessage) {
+            DOM.answerAi.textContent = "";
+            firstMessage = false;
           }
           try {
             const json = JSON.parse(e.data);
