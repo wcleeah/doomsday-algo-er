@@ -1,26 +1,29 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "doomsday-algo-er",
-  "main": "./index.js",
-    "assets": {
-    "directory": "./public",
-    "binding": "ASSETS"
-  },
-  "compatibility_date": "2026-02-06",
-  "compatibility_flags": ["nodejs_compat"],
-    "observability": {
-        "enabled": false,
-        "head_sampling_rate": 1,
-        "logs": {
-            "enabled": true,
-            "head_sampling_rate": 1,
-            "persist": true,
-            "invocation_logs": true
-        },
-        "traces": {
-            "enabled": false,
-            "persist": true,
-            "head_sampling_rate": 1
-        }
-    }
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "doomsday-algo-er",
+	"main": "./index.js",
+	"assets": {
+		"directory": "./public",
+		"binding": "ASSETS"
+	},
+	"compatibility_date": "2026-02-06",
+	"compatibility_flags": ["nodejs_compat"],
+	"vars": {
+		"OPEN_ROUTER_API_URL": "https://openrouter.ai/api/v1/chat/completions"
+	},
+	"observability": {
+		"enabled": false,
+		"head_sampling_rate": 1,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"persist": true,
+			"invocation_logs": true
+		},
+		"traces": {
+			"enabled": false,
+			"persist": true,
+			"head_sampling_rate": 1
+		}
+	}
 }
