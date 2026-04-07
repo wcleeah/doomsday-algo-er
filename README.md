@@ -1,5 +1,5 @@
 # doomsday-algo-er
-Super simple webapp to calculate weekdays of a date.
+Super simple webapp to calculate weekdays of a date. [Try it!](https://doomsday.wcleeah.me)
 
 ## Stack
 - Frontend: pure html, css and vanila js
